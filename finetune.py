@@ -87,6 +87,10 @@ tokenizer.pad_token_id = 0  # unk. we want this to be different from the eos tok
 data = load_dataset("json", data_files=DATA_PATH)
 
 now_max_steps = max((len(data["train"]) - VAL_SET_SIZE) // BATCH_SIZE * EPOCHS, EPOCHS)
+
+print("/*********************** len(data[train]) = %d"%len(data["train"]))
+print("/*********************** now_max_steps = %d"%now_max_steps)
+
 if args.resume_from_checkpoint:
 # Check the available weights and load them
     checkpoint_name = os.path.join(
@@ -231,24 +235,24 @@ else:
     val_data = None
 
 print("/******************************************************************************************/")
-print("per_device_train_batch_size = %s}"%MICRO_BATCH_SIZE)
-print("gradient_accumulation_steps = %s}"%GRADIENT_ACCUMULATION_STEPS)
-print("warmup_steps = 100}")
-print("num_train_epochs = %s}"%EPOCHS)
-print("max_steps = %s}"%MAX_STEPS)
-print("learning_rate = %s}"%LEARNING_RATE)
+print("per_device_train_batch_size = %s"%MICRO_BATCH_SIZE)
+print("gradient_accumulation_steps = %s"%GRADIENT_ACCUMULATION_STEPS)
+print("warmup_steps = 100")
+print("num_train_epochs = %s"%EPOCHS)
+print("max_steps = %s"%MAX_STEPS)
+print("learning_rate = %s"%LEARNING_RATE)
 print("fp16 = Ture}")
-print("logging_steps = 10}")
-print("evaluation_strategy = %s}"%"steps" if VAL_SET_SIZE > 0 else "no")
+print("logging_steps = 10")
+print("evaluation_strategy = %s"%"steps" if VAL_SET_SIZE > 0 else "no")
 print("save_strategy = steps")
-print("eval_steps = %s}"%args.eval_steps if VAL_SET_SIZE > 0 else None)
-print("save_steps = %s}"%args.save_steps)
-print("output_dir = %s}"%OUTPUT_DIR)
-print("save_total_limit = 30}")
-print("load_best_model_at_end = %s}"%True if VAL_SET_SIZE > 0 else False)
-print("ddp_find_unused_parameters = %s}"%True if VAL_SET_SIZE > 0 else False)
-print("report_to = %s}"%"wandb" if args.wandb else [])
-print("ignore_data_skip = %s}"%args.ignore_data_skip)
+print("eval_steps = %s"%args.eval_steps if VAL_SET_SIZE > 0 else None)
+print("save_steps = %s"%args.save_steps)
+print("output_dir = %s"%OUTPUT_DIR)
+print("save_total_limit = 30")
+print("load_best_model_at_end = %s"%True if VAL_SET_SIZE > 0 else False)
+print("ddp_find_unused_parameters = %s"%True if VAL_SET_SIZE > 0 else False)
+print("report_to = %s"%"wandb" if args.wandb else [])
+print("ignore_data_skip = %s"%args.ignore_data_skip)
 print("/******************************************************************************************/")
 
 trainer = transformers.Trainer(
