@@ -270,7 +270,7 @@ trainer = transformers.Trainer(
         max_steps=MAX_STEPS,
         learning_rate=LEARNING_RATE,
         fp16=True,
-        logging_steps=20,
+        logging_steps=2,
         evaluation_strategy="steps" if VAL_SET_SIZE > 0 else "no",
         save_strategy="steps",
         eval_steps=args.eval_steps if VAL_SET_SIZE > 0 else None,
@@ -279,7 +279,7 @@ trainer = transformers.Trainer(
         save_total_limit=30,
         load_best_model_at_end=True if VAL_SET_SIZE > 0 else False,
         ddp_find_unused_parameters=False if ddp else None,
-        report_to="wandb" if args.wandb else [],
+        report_to="tensorboard",
         ignore_data_skip=args.ignore_data_skip,
     ),
     data_collator=transformers.DataCollatorForLanguageModeling(tokenizer, mlm=False)
