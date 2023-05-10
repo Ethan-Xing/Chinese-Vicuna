@@ -230,6 +230,27 @@ else:
     train_data = data["train"].shuffle().map(generate_and_tokenize_prompt)
     val_data = None
 
+print("/******************************************************************************************/")
+print("per_device_train_batch_size = %s}"%MICRO_BATCH_SIZE)
+print("gradient_accumulation_steps = %s}"%GRADIENT_ACCUMULATION_STEPS)
+print("warmup_steps = 100}")
+print("num_train_epochs = %s}"%EPOCHS)
+print("max_steps = %s}"%MAX_STEPS)
+print("learning_rate = %s}"%LEARNING_RATE)
+print("fp16 = Ture}")
+print("logging_steps = 10}")
+print("evaluation_strategy = %s}"%"steps" if VAL_SET_SIZE > 0 else "no")
+print("save_strategy = steps")
+print("eval_steps = %s}"%args.eval_steps if VAL_SET_SIZE > 0 else None)
+print("save_steps = %s}"%args.save_steps)
+print("output_dir = %s}"%OUTPUT_DIR)
+print("save_total_limit = 30}")
+print("load_best_model_at_end = %s}"%True if VAL_SET_SIZE > 0 else False)
+print("ddp_find_unused_parameters = %s}"%True if VAL_SET_SIZE > 0 else False)
+print("report_to = %s}"%"wandb" if args.wandb else [])
+print("ignore_data_skip = %s}"%args.ignore_data_skip)
+print("/******************************************************************************************/")
+
 trainer = transformers.Trainer(
     model=model,
     train_dataset=train_data,
