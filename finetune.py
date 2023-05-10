@@ -88,8 +88,8 @@ data = load_dataset("json", data_files=DATA_PATH)
 
 now_max_steps = max((len(data["train"]) - VAL_SET_SIZE) // BATCH_SIZE * EPOCHS, EPOCHS)
 
-print("/*********************** len(data[train]) = %d"%len(data["train"]))
-print("/*********************** now_max_steps = %d"%now_max_steps)
+print("/*********************** len(data[train]) = %d" %len(data["train"]))
+print("/*********************** now_max_steps = %d" %now_max_steps)
 
 if args.resume_from_checkpoint:
 # Check the available weights and load them
@@ -130,6 +130,8 @@ if args.resume_from_checkpoint:
             MAX_STEPS = base_max_steps
         else:
             MAX_STEPS = now_max_steps
+    else:
+        MAX_STEPS = now_max_steps
 else:
     MAX_STEPS = now_max_steps
 
@@ -240,7 +242,7 @@ print("per_device_train_batch_size = %s"%MICRO_BATCH_SIZE)
 print("gradient_accumulation_steps = %s"%GRADIENT_ACCUMULATION_STEPS)
 print("warmup_steps = 100")
 print("num_train_epochs = %s"%EPOCHS)
-print("max_steps = %s"%MAX_STEPS)
+print("max_steps = %d" %MAX_STEPS)
 print("learning_rate = %s"%LEARNING_RATE)
 print("fp16 = Ture}")
 print("logging_steps = 10")
