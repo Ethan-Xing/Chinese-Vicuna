@@ -29,6 +29,9 @@ parser.add_argument("--model_path", type=str, default="decapoda-research/llama-7
 parser.add_argument("--eval_steps", type=int, default=200)
 parser.add_argument("--save_steps", type=int, default=200)
 parser.add_argument("--test_size", type=int, default=200)
+parser.add_argument("--epochs", type=int, default=10)
+parser.add_argument("--batch_size", type=int, default=64)
+parser.add_argument("--micro_batch_size", type=int, default=8)
 parser.add_argument("--resume_from_checkpoint", type=str, default=None)
 parser.add_argument("--ignore_data_skip", type=str, default="False")
 args = parser.parse_args()
@@ -36,11 +39,11 @@ args = parser.parse_args()
 if not args.wandb:
     os.environ["WANDB_MODE"] = "disable"
 # optimized for RTX 4090. for larger GPUs, increase some of these?
-MICRO_BATCH_SIZE = 8  # this could actually be 5 but i like powers of 2
-BATCH_SIZE = 8
+MICRO_BATCH_SIZE = args.micro_batch_size  # this could actually be 5 but i like powers of 2
+BATCH_SIZE = args.batch_size
 MAX_STEPS = None
 GRADIENT_ACCUMULATION_STEPS = BATCH_SIZE // MICRO_BATCH_SIZE
-EPOCHS = 64  # we don't always need 3 tbh
+EPOCHS = args.epochs  # we don't always need 3 tbh
 LEARNING_RATE = 3e-4  # the Karpathy constant
 CUTOFF_LEN = 256  # 256 accounts for about 96% of the data
 LORA_R = 8
@@ -53,6 +56,9 @@ TARGET_MODULES = [
 ]
 DATA_PATH = args.data_path #"/home/cciip/private/fanchenghao/dataset/instruction/merge.json"
 OUTPUT_DIR = args.output_path #"lora-Vicuna"
+WARMUP_STEPS = 10
+LOGGING_STEPS = 10
+SAVE_TOTAL_LIMIT = 30
 
 device_map = "auto"
 world_size = int(os.environ.get("WORLD_SIZE", 1))
@@ -240,18 +246,18 @@ else:
 print("/******************************************************************************************/")
 print("per_device_train_batch_size = %s"%MICRO_BATCH_SIZE)
 print("gradient_accumulation_steps = %s"%GRADIENT_ACCUMULATION_STEPS)
-print("warmup_steps = 100")
+print("warmup_steps = %d"%WARMUP_STEPS)
 print("num_train_epochs = %s"%EPOCHS)
 print("max_steps = %d" %MAX_STEPS)
 print("learning_rate = %s"%LEARNING_RATE)
-print("fp16 = Ture}")
-print("logging_steps = 10")
+print("fp16 = Ture")
+print("logging_steps = %d"%LOGGING_STEPS)
 print("evaluation_strategy = %s"%"steps" if VAL_SET_SIZE > 0 else "no")
 print("save_strategy = steps")
 print("eval_steps = %s"%args.eval_steps if VAL_SET_SIZE > 0 else None)
 print("save_steps = %s"%args.save_steps)
 print("output_dir = %s"%OUTPUT_DIR)
-print("save_total_limit = 30")
+print("save_total_limit = %d"%SAVE_TOTAL_LIMIT)
 print("load_best_model_at_end = %s"%True if VAL_SET_SIZE > 0 else False)
 print("ddp_find_unused_parameters = %s"%True if VAL_SET_SIZE > 0 else False)
 print("report_to = %s"%"wandb" if args.wandb else [])
@@ -265,18 +271,18 @@ trainer = transformers.Trainer(
     args=transformers.TrainingArguments(
         per_device_train_batch_size=MICRO_BATCH_SIZE,
         gradient_accumulation_steps=GRADIENT_ACCUMULATION_STEPS,
-        warmup_steps=3,
+        warmup_steps=WARMUP_STEPS,
         num_train_epochs=EPOCHS,
         max_steps=MAX_STEPS,
         learning_rate=LEARNING_RATE,
         fp16=True,
-        logging_steps=2,
+        logging_steps=LOGGING_STEPS,
         evaluation_strategy="steps" if VAL_SET_SIZE > 0 else "no",
         save_strategy="steps",
         eval_steps=args.eval_steps if VAL_SET_SIZE > 0 else None,
         save_steps=args.save_steps,
         output_dir=OUTPUT_DIR,
-        save_total_limit=30,
+        save_total_limit=SAVE_TOTAL_LIMIT,
         load_best_model_at_end=True if VAL_SET_SIZE > 0 else False,
         ddp_find_unused_parameters=False if ddp else None,
         report_to="tensorboard",
