@@ -14,13 +14,12 @@ from transformers import LlamaTokenizer, LlamaForCausalLM, GenerationConfig
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_path", type=str, default="/model/13B_hf")
-parser.add_argument("--cache_dir", type=str, default="./huggingface/cacheDir")
 parser.add_argument("--lora_path", type=str, default="/home/tianjie/Documents/DialogueGeneration/trl/checkpoint/checkpoint-3000")
 parser.add_argument("--use_typewriter", type=int, default=1)
 parser.add_argument("--use_local", type=int, default=1)
 args = parser.parse_args()
 print(args)
-tokenizer = LlamaTokenizer.from_pretrained(args.model_path, cache_dir=args.cache_dir)
+tokenizer = LlamaTokenizer.from_pretrained(args.model_path)
 
 LOAD_8BIT = True
 BASE_MODEL = args.model_path
@@ -55,7 +54,6 @@ except:
 if device == "cuda":
     model = LlamaForCausalLM.from_pretrained(
         BASE_MODEL,
-        cache_dir=args.cache_dir,
         load_in_8bit=LOAD_8BIT,
         torch_dtype=torch.float16,
         device_map={"": 0},
@@ -66,7 +64,6 @@ if device == "cuda":
 elif device == "mps":
     model = LlamaForCausalLM.from_pretrained(
         BASE_MODEL,
-        cache_dir=args.cache_dir,
         device_map={"": device},
         torch_dtype=torch.float16,
     )
@@ -78,9 +75,7 @@ elif device == "mps":
     )
 else:
     model = LlamaForCausalLM.from_pretrained(
-        BASE_MODEL,
-        cache_dir=args.cache_dir,
-        device_map={"": device}, low_cpu_mem_usage=True
+        BASE_MODEL, device_map={"": device}, low_cpu_mem_usage=True
     )
     model = SteamGenerationMixin.from_pretrained(
         model,

@@ -26,7 +26,6 @@ parser.add_argument("--wandb", action="store_true", default=False)
 parser.add_argument("--data_path", type=str, default="merge.json")
 parser.add_argument("--output_path", type=str, default="lora-Vicuna")
 parser.add_argument("--model_path", type=str, default="decapoda-research/llama-7b-hf")
-parser.add_argument("--cache_dir", type=str, default="./huggingface/cacheDir")
 parser.add_argument("--eval_steps", type=int, default=200)
 parser.add_argument("--save_steps", type=int, default=200)
 parser.add_argument("--test_size", type=int, default=200)
@@ -70,14 +69,11 @@ if ddp:
 print(args.model_path)
 model = LlamaForCausalLM.from_pretrained(
     args.model_path,
-    cache_dir=args.cache_dir,
     load_in_8bit=True,
     device_map=device_map,
 )
 tokenizer = LlamaTokenizer.from_pretrained(
-    args.model_path,
-    cache_dir=args.cache_dir,
-    add_eos_token=True
+    args.model_path, add_eos_token=True
 )
 
 model = prepare_model_for_int8_training(model)
