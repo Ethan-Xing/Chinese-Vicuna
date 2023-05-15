@@ -15,11 +15,13 @@ from transformers import LlamaTokenizer, LlamaForCausalLM, GenerationConfig
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_path", type=str, default="decapoda-research/llama-7b-hf")
+parser.add_argument("--cache_dir", type=str, default="./huggingface/cacheDir")
 parser.add_argument("--lora_path", type=str, default="./lora-Vicuna/checkpoint-final")
 parser.add_argument("--use_local", type=int, default=1)
 args = parser.parse_args()
 
-tokenizer = LlamaTokenizer.from_pretrained(args.model_path)
+tokenizer = LlamaTokenizer.from_pretrained(args.model_path,
+                                           cache_dir=args.cache_dir)
 
 LOAD_8BIT = True
 BASE_MODEL = args.model_path
@@ -50,6 +52,7 @@ except:
 if device == "cuda":
     model = LlamaForCausalLM.from_pretrained(
         BASE_MODEL,
+        cache_dir=args.cache_dir,
         load_in_8bit=LOAD_8BIT,
         torch_dtype=torch.float16,
         device_map="auto",
@@ -63,6 +66,7 @@ if device == "cuda":
 elif device == "mps":
     model = LlamaForCausalLM.from_pretrained(
         BASE_MODEL,
+        cache_dir=args.cache_dir,
         device_map={"": device},
         torch_dtype=torch.float16,
     )
@@ -74,7 +78,9 @@ elif device == "mps":
     )
 else:
     model = LlamaForCausalLM.from_pretrained(
-        BASE_MODEL, device_map={"": device}, low_cpu_mem_usage=True
+        BASE_MODEL,
+        cache_dir=args.cache_dir,
+        device_map={"": device}, low_cpu_mem_usage=True
     )
     model = PeftModel.from_pretrained(
         model,
